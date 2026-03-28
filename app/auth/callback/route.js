@@ -1,30 +1,45 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  let next = searchParams.get("next") ?? "/dashboard";
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const next = url.searchParams.get("next") || "/dashboard";
 
-  if (!next.startsWith("/")) {
-    next = "/dashboard";
+  if (!code) {
+    return NextResponse.redirect(new URL("/auth?error=NoCode", request.url));
   }
 
-  if (code) {
-    const supabase = await createServerSupabaseClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+  let response = NextResponse.redirect(new URL(next, request.url));
 
-    if (!error) {
-      // ✅ SIMPLE & RELIABLE REDIRECT
-      return NextResponse.redirect(new URL(next, request.url));
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
     }
+  );
 
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
     return NextResponse.redirect(
-      new URL(`/auth?message=${encodeURIComponent(error.message)}`, request.url)
+      new URL(`/auth?error=${error.message}`, request.url)
     );
   }
 
-  return NextResponse.redirect(
-    new URL(`/auth?message=Missing+authorization+code`, request.url)
-  );
+  return response;
 }
