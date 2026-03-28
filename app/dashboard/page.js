@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import MatchPickCard from "@/components/match-pick-card";
 import PoolPageHeader from "@/components/pool-page-header";
