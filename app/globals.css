@@ -465,6 +465,35 @@ p {
   margin-top: 18px;
 }
 
+.top-nav {
+  margin-top: 18px;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.nav-link-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 14px 28px rgba(239, 106, 47, 0.24);
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -577,6 +606,20 @@ p {
   align-items: center;
 }
 
+.quick-link-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.quick-link-card span {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .join-card {
   margin-top: 24px;
 }
@@ -677,6 +720,10 @@ select:focus {
   .settlement-head,
   .join-card,
   .admin-tools {
+    flex-direction: column;
+  }
+
+  .nav-links {
     flex-direction: column;
   }
 
