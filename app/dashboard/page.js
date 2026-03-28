@@ -241,6 +241,10 @@ export default async function DashboardPage({ searchParams }) {
                     Match date
                     <input name="matchDate" type="date" required />
                   </label>
+                  <label>
+                    Match time
+                    <input name="matchTime" type="time" defaultValue="19:30" required />
+                  </label>
                   <button className="primary-button align-bottom" type="submit">
                     Add match
                   </button>

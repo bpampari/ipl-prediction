@@ -31,6 +31,7 @@ create table if not exists public.matches (
   team_a text not null,
   team_b text not null,
   match_date date not null,
+  match_time time not null default '19:30:00',
   actual_winner text,
   settled_at timestamptz,
   created_by uuid references auth.users(id) on delete set null,
@@ -38,6 +39,9 @@ create table if not exists public.matches (
   check (team_a <> team_b),
   check (actual_winner is null or actual_winner = team_a or actual_winner = team_b)
 );
+
+alter table public.matches
+  add column if not exists match_time time not null default '19:30:00';
 
 create table if not exists public.predictions (
   id uuid primary key default gen_random_uuid(),
@@ -198,7 +202,8 @@ create or replace function public.create_match(
   p_room_slug text,
   p_team_a text,
   p_team_b text,
-  p_match_date date
+  p_match_date date,
+  p_match_time time
 )
 returns public.matches
 language plpgsql
@@ -229,8 +234,8 @@ begin
     raise exception 'Team names must be different.';
   end if;
 
-  insert into public.matches (room_id, team_a, team_b, match_date, created_by)
-  values (target_room.id, trim(p_team_a), trim(p_team_b), p_match_date, auth.uid())
+  insert into public.matches (room_id, team_a, team_b, match_date, match_time, created_by)
+  values (target_room.id, trim(p_team_a), trim(p_team_b), p_match_date, p_match_time, auth.uid())
   returning * into inserted_match;
 
   return inserted_match;
@@ -263,6 +268,10 @@ begin
 
   if target_match.settled_at is not null then
     raise exception 'Predictions are locked for this match.';
+  end if;
+
+  if ((target_match.match_date + target_match.match_time) <= (now() at time zone 'Asia/Kolkata')) then
+    raise exception 'Predictions are closed because the scheduled match time has passed.';
   end if;
 
   if p_predicted_team not in (target_match.team_a, target_match.team_b) then
@@ -410,20 +419,20 @@ begin
     raise exception 'Only an admin can seed matches.';
   end if;
 
-  with sample_matches(team_a, team_b, match_date) as (
+  with sample_matches(team_a, team_b, match_date, match_time) as (
     values
-      ('Mumbai Indians', 'Chennai Super Kings', current_date + 1),
-      ('Royal Challengers Bengaluru', 'Kolkata Knight Riders', current_date + 2),
-      ('Sunrisers Hyderabad', 'Rajasthan Royals', current_date + 3),
-      ('Delhi Capitals', 'Lucknow Super Giants', current_date + 4),
-      ('Punjab Kings', 'Gujarat Titans', current_date + 5),
-      ('Chennai Super Kings', 'Royal Challengers Bengaluru', current_date + 6),
-      ('Mumbai Indians', 'Sunrisers Hyderabad', current_date + 7),
-      ('Kolkata Knight Riders', 'Rajasthan Royals', current_date + 8)
+      ('Mumbai Indians', 'Chennai Super Kings', current_date + 1, '19:30:00'::time),
+      ('Royal Challengers Bengaluru', 'Kolkata Knight Riders', current_date + 2, '19:30:00'::time),
+      ('Sunrisers Hyderabad', 'Rajasthan Royals', current_date + 3, '19:30:00'::time),
+      ('Delhi Capitals', 'Lucknow Super Giants', current_date + 4, '19:30:00'::time),
+      ('Punjab Kings', 'Gujarat Titans', current_date + 5, '19:30:00'::time),
+      ('Chennai Super Kings', 'Royal Challengers Bengaluru', current_date + 6, '19:30:00'::time),
+      ('Mumbai Indians', 'Sunrisers Hyderabad', current_date + 7, '15:30:00'::time),
+      ('Kolkata Knight Riders', 'Rajasthan Royals', current_date + 8, '19:30:00'::time)
   ),
   inserted as (
-    insert into public.matches (room_id, team_a, team_b, match_date, created_by)
-    select target_room.id, sm.team_a, sm.team_b, sm.match_date, auth.uid()
+    insert into public.matches (room_id, team_a, team_b, match_date, match_time, created_by)
+    select target_room.id, sm.team_a, sm.team_b, sm.match_date, sm.match_time, auth.uid()
     from sample_matches sm
     where not exists (
       select 1
@@ -432,6 +441,7 @@ begin
         and m.team_a = sm.team_a
         and m.team_b = sm.team_b
         and m.match_date = sm.match_date
+        and m.match_time = sm.match_time
     )
     returning 1
   )
@@ -442,7 +452,7 @@ end;
 $$;
 
 grant execute on function public.join_default_room(text) to authenticated;
-grant execute on function public.create_match(text, text, text, date) to authenticated;
+grant execute on function public.create_match(text, text, text, date, time) to authenticated;
 grant execute on function public.save_prediction(uuid, text) to authenticated;
 grant execute on function public.settle_match(uuid, text) to authenticated;
 grant execute on function public.seed_sample_ipl_matches(text) to authenticated;

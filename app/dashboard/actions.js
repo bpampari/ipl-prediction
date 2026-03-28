@@ -53,12 +53,14 @@ export async function createMatchAction(formData) {
   const teamA = getField(formData, "teamA");
   const teamB = getField(formData, "teamB");
   const matchDate = getField(formData, "matchDate");
+  const matchTime = getField(formData, "matchTime");
 
   const { error } = await supabase.rpc("create_match", {
     p_room_slug: DEFAULT_ROOM_SLUG,
     p_team_a: teamA,
     p_team_b: teamB,
-    p_match_date: matchDate
+    p_match_date: matchDate,
+    p_match_time: matchTime
   });
 
   if (error) {

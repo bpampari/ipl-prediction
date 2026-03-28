@@ -21,7 +21,7 @@ export default function MatchPickCard({ match, prediction }) {
     });
   }
 
-  const isLocked = Boolean(match.settled_at);
+  const isLocked = Boolean(match.settled_at || match.predictions_locked);
 
   return (
     <article className="pick-card">
@@ -55,9 +55,13 @@ export default function MatchPickCard({ match, prediction }) {
 
       <p className="prediction-note">
         {isLocked
-          ? prediction
-            ? `You selected ${prediction.predicted_team} before settlement.`
-            : "You did not submit a pick before this match was settled."
+          ? match.settled_at
+            ? prediction
+              ? `You selected ${prediction.predicted_team} before settlement.`
+              : "You did not submit a pick before this match was settled."
+            : prediction
+              ? `You selected ${prediction.predicted_team} before the scheduled start time.`
+              : "The scheduled match time has passed, so this now counts as a missed pick."
           : prediction
             ? `Saved choice: ${prediction.predicted_team}`
             : "No choice saved yet."}
