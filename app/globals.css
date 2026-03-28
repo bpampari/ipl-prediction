@@ -109,6 +109,251 @@ p {
   align-content: center;
 }
 
+.stadium-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 620px;
+  border-radius: 34px;
+  box-shadow: var(--shadow);
+  background:
+    linear-gradient(180deg, rgba(8, 33, 59, 0.16) 0%, rgba(8, 26, 30, 0.08) 100%),
+    linear-gradient(180deg, #11253e 0%, #193853 26%, #24513d 58%, #173320 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.stadium-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 42px 42px 0;
+  max-width: 640px;
+}
+
+.stadium-copy h1 {
+  color: #f8fbff;
+  font-size: clamp(2.7rem, 4vw, 5rem);
+  line-height: 0.98;
+  max-width: 11ch;
+}
+
+.stadium-lead {
+  color: rgba(245, 250, 255, 0.86);
+  line-height: 1.65;
+  font-size: 1.08rem;
+  max-width: 56ch;
+}
+
+.light-eyebrow {
+  color: rgba(255, 242, 204, 0.86);
+}
+
+.inverted-link {
+  background: rgba(255, 255, 255, 0.16);
+  color: #f7fbff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.stadium-visual {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sky-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 244, 186, 0.32), transparent 16%),
+    radial-gradient(circle at 20% 22%, rgba(110, 176, 255, 0.18), transparent 18%),
+    radial-gradient(circle at 78% 24%, rgba(110, 176, 255, 0.16), transparent 18%);
+}
+
+.floodlight {
+  position: absolute;
+  top: 86px;
+  width: 12px;
+  height: 210px;
+  background: linear-gradient(180deg, rgba(225, 238, 244, 0.84), rgba(181, 201, 212, 0.28));
+}
+
+.floodlight::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 86px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(234, 242, 246, 0.94);
+  box-shadow: 0 0 24px rgba(255, 248, 214, 0.54);
+}
+
+.floodlight::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 300px;
+  background: linear-gradient(180deg, rgba(255, 249, 222, 0.24), transparent 72%);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.floodlight-left {
+  left: 70px;
+}
+
+.floodlight-right {
+  right: 70px;
+}
+
+.stadium-bowl {
+  position: absolute;
+  left: 50%;
+  bottom: 128px;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 230px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 42%),
+    linear-gradient(180deg, rgba(29, 67, 49, 0.18), rgba(11, 27, 18, 0.78)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.08) 0 6px,
+      rgba(0, 0, 0, 0) 6px 22px
+    );
+  filter: blur(0.2px);
+}
+
+.pitch-ring {
+  position: absolute;
+  left: 50%;
+  bottom: -82px;
+  transform: translateX(-50%);
+  width: 118%;
+  height: 420px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(70, 162, 89, 0.85), rgba(21, 84, 38, 0.98) 64%);
+  box-shadow: inset 0 36px 110px rgba(255, 255, 255, 0.1);
+}
+
+.pitch-strip {
+  position: absolute;
+  left: 50%;
+  bottom: 112px;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 210px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #d9b57a 0%, #b88a53 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.crease {
+  position: absolute;
+  left: 50%;
+  width: 110px;
+  height: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.crease-top {
+  bottom: 288px;
+}
+
+.crease-bottom {
+  bottom: 140px;
+}
+
+.wicket {
+  position: absolute;
+  left: 50%;
+  width: 24px;
+  height: 22px;
+  transform: translateX(-50%);
+}
+
+.wicket::before,
+.wicket::after,
+.wicket span {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 22px;
+  background: #fff8e9;
+}
+
+.wicket::before {
+  left: 3px;
+}
+
+.wicket::after {
+  right: 3px;
+}
+
+.wicket-top {
+  bottom: 297px;
+}
+
+.wicket-bottom {
+  bottom: 118px;
+}
+
+.wicket-top,
+.wicket-bottom {
+  background:
+    linear-gradient(90deg, transparent 0 4px, #fff8e9 4px 7px, transparent 7px 10px, #fff8e9 10px 13px, transparent 13px 16px, #fff8e9 16px 19px, transparent 19px);
+}
+
+.ball-marker {
+  position: absolute;
+  left: calc(50% + 54px);
+  bottom: 220px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f45133 35%, #b41813 100%);
+  box-shadow: 0 0 22px rgba(255, 126, 84, 0.36);
+}
+
+.home-side-panel {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.home-side-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.feature-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.feature-tile {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--line);
+}
+
+.feature-tile span {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -349,6 +594,17 @@ p {
   align-items: end;
 }
 
+.admin-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.58);
+}
+
 .prediction-table {
   width: 100%;
   border-collapse: collapse;
@@ -403,6 +659,10 @@ select:focus {
   .card-span {
     grid-column: auto;
   }
+
+  .stadium-card {
+    min-height: 560px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -415,7 +675,8 @@ select:focus {
   .section-head,
   .pick-card-head,
   .settlement-head,
-  .join-card {
+  .join-card,
+  .admin-tools {
     flex-direction: column;
   }
 
@@ -425,5 +686,22 @@ select:focus {
 
   .leader-row {
     grid-template-columns: 1fr;
+  }
+
+  .stadium-copy {
+    padding: 26px 22px 0;
+  }
+
+  .stadium-copy h1 {
+    max-width: 12ch;
+    font-size: clamp(2.3rem, 11vw, 3.6rem);
+  }
+
+  .floodlight-left {
+    left: 20px;
+  }
+
+  .floodlight-right {
+    right: 20px;
   }
 }

@@ -4,10 +4,11 @@ A production-ready IPL prediction pool app built with Next.js and Supabase.
 
 ## Features
 
-- Google sign-in and phone OTP sign-in with Supabase Auth
+- Google sign-in with Supabase Auth
 - One default room with a maximum of 8 players
 - First member becomes admin automatically
 - Admin can create IPL matches and settle final results
+- Admin can seed a sample IPL fixture list for faster setup
 - Players can submit one pick per match
 - Automatic point settlement:
   - wrong pick: `-50`
@@ -44,10 +45,11 @@ cp .env.example .env.local
 
 [supabase/schema.sql](/C:/Users/india/Documents/New%20project/supabase/schema.sql)
 
+If you already ran an older version of the SQL, run the latest file again so the new seed function is added.
+
 5. Configure auth in Supabase:
 
 - Enable Google provider
-- Enable Phone provider and configure an SMS provider
 - Set the site URL to your local URL and Vercel URL
 - Add the callback URL:
   - `http://localhost:3000/auth/callback`

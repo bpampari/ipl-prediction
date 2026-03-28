@@ -362,7 +362,71 @@ begin
 end;
 $$;
 
+create or replace function public.seed_sample_ipl_matches(
+  p_room_slug text
+)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_room public.rooms;
+  membership public.room_members;
+  inserted_count integer := 0;
+begin
+  if auth.uid() is null then
+    raise exception 'You must be logged in.';
+  end if;
+
+  select * into target_room from public.rooms where slug = p_room_slug;
+
+  if target_room.id is null then
+    raise exception 'Room not found.';
+  end if;
+
+  select * into membership
+  from public.room_members
+  where room_id = target_room.id
+    and user_id = auth.uid();
+
+  if membership.role is distinct from 'admin' then
+    raise exception 'Only an admin can seed matches.';
+  end if;
+
+  with sample_matches(team_a, team_b, match_date) as (
+    values
+      ('Mumbai Indians', 'Chennai Super Kings', current_date + 1),
+      ('Royal Challengers Bengaluru', 'Kolkata Knight Riders', current_date + 2),
+      ('Sunrisers Hyderabad', 'Rajasthan Royals', current_date + 3),
+      ('Delhi Capitals', 'Lucknow Super Giants', current_date + 4),
+      ('Punjab Kings', 'Gujarat Titans', current_date + 5),
+      ('Chennai Super Kings', 'Royal Challengers Bengaluru', current_date + 6),
+      ('Mumbai Indians', 'Sunrisers Hyderabad', current_date + 7),
+      ('Kolkata Knight Riders', 'Rajasthan Royals', current_date + 8)
+  ),
+  inserted as (
+    insert into public.matches (room_id, team_a, team_b, match_date, created_by)
+    select target_room.id, sm.team_a, sm.team_b, sm.match_date, auth.uid()
+    from sample_matches sm
+    where not exists (
+      select 1
+      from public.matches m
+      where m.room_id = target_room.id
+        and m.team_a = sm.team_a
+        and m.team_b = sm.team_b
+        and m.match_date = sm.match_date
+    )
+    returning 1
+  )
+  select count(*) into inserted_count from inserted;
+
+  return inserted_count;
+end;
+$$;
+
 grant execute on function public.join_default_room(text) to authenticated;
 grant execute on function public.create_match(text, text, text, date) to authenticated;
 grant execute on function public.save_prediction(uuid, text) to authenticated;
 grant execute on function public.settle_match(uuid, text) to authenticated;
+grant execute on function public.seed_sample_ipl_matches(text) to authenticated;

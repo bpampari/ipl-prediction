@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import MatchPickCard from "@/components/match-pick-card";
 import MatchSettlementCard from "@/components/match-settlement-card";
-import { createMatchAction, joinDefaultRoomAction, settleMatchAction, signOutAction, updateProfileAction } from "./actions";
+import { createMatchAction, joinDefaultRoomAction, seedMatchesAction, settleMatchAction, signOutAction, updateProfileAction } from "./actions";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 import { formatPoints } from "@/lib/format";
@@ -245,6 +245,20 @@ export default async function DashboardPage({ searchParams }) {
                     Add match
                   </button>
                 </form>
+
+                <div className="admin-tools">
+                  <div>
+                    <p className="leader-name">Quick setup</p>
+                    <p className="muted-copy">
+                      Seed a small sample IPL fixture list so the room can start using the product immediately.
+                    </p>
+                  </div>
+                  <form action={seedMatchesAction}>
+                    <button className="ghost-button" type="submit">
+                      Seed sample matches
+                    </button>
+                  </form>
+                </div>
               </div>
             </section>
           ) : null}

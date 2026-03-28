@@ -68,6 +68,19 @@ export async function createMatchAction(formData) {
   revalidatePath("/dashboard");
 }
 
+export async function seedMatchesAction() {
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.rpc("seed_sample_ipl_matches", {
+    p_room_slug: DEFAULT_ROOM_SLUG
+  });
+
+  if (error) {
+    redirect(`/dashboard?message=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/dashboard");
+}
+
 export async function settleMatchAction(formData) {
   const supabase = await createServerSupabaseClient();
   const matchId = getField(formData, "matchId");
