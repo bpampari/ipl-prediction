@@ -47,7 +47,7 @@ export default function MatchSettlementCard({ match, predictions, members, isAdm
 
       {match.settled_at ? (
         <p className="muted-copy">
-          Winner: <strong>{match.actual_winner}</strong>
+          Winner: <strong>{match.actual_winner}</strong>. Any missed pick counts as a losing entry and loses 50 points.
         </p>
       ) : isAdmin ? (
         <form action={settleMatchAction} className="match-form-grid">

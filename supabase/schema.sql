@@ -43,13 +43,16 @@ create table if not exists public.predictions (
   id uuid primary key default gen_random_uuid(),
   match_id uuid not null references public.matches(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
-  predicted_team text not null,
+  predicted_team text,
   stake integer not null default 50 check (stake = 50),
   points_delta numeric(10,2),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (match_id, user_id)
 );
+
+alter table public.predictions
+  alter column predicted_team drop not null;
 
 insert into public.rooms (slug, name, max_players)
 values ('ipl-2026-main', 'IPL 2026 Main Pool', 8)
@@ -298,6 +301,7 @@ as $$
 declare
   target_match public.matches;
   membership public.room_members;
+  member_count integer;
   winning_count integer;
   losing_count integer;
   winner_share numeric(10,2);
@@ -329,21 +333,33 @@ begin
     raise exception 'Winner must be one of the two teams in the match.';
   end if;
 
+  select count(*) into member_count
+  from public.room_members
+  where room_id = target_match.room_id;
+
   select count(*) into winning_count
   from public.predictions
   where match_id = target_match.id
     and predicted_team = p_actual_winner;
 
-  select count(*) into losing_count
-  from public.predictions
-  where match_id = target_match.id
-    and predicted_team <> p_actual_winner;
+  losing_count := member_count - winning_count;
 
   if winning_count > 0 then
     winner_share := round((losing_count * 50.0) / winning_count, 2);
   else
     winner_share := 0;
   end if;
+
+  insert into public.predictions (match_id, user_id, predicted_team, stake, points_delta)
+  select target_match.id, rm.user_id, null, 50, -50
+  from public.room_members rm
+  where rm.room_id = target_match.room_id
+    and not exists (
+      select 1
+      from public.predictions p
+      where p.match_id = target_match.id
+        and p.user_id = rm.user_id
+    );
 
   update public.predictions
   set points_delta = case

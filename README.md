@@ -12,6 +12,7 @@ A production-ready IPL prediction pool app built with Next.js and Supabase.
 - Players can submit one pick per match
 - Automatic point settlement:
   - wrong pick: `-50`
+  - missed pick: `-50`
   - correct pick: split the losing pool equally
 - Season leaderboard and room summary
 - Database schema already supports multiple rooms later
