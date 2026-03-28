@@ -1,42 +1,36 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(request) {
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/dashboard";
-  const safeNext = next.startsWith("/") ? next : "/dashboard";
-  const redirectUrl = new URL(safeNext, request.url);
-  let response = NextResponse.redirect(redirectUrl);
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  let next = searchParams.get("next") ?? "/dashboard";
 
-  if (code) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-            response = NextResponse.redirect(redirectUrl);
-            cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options);
-            });
-          }
-        }
-      }
-    );
-
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error) {
-      return NextResponse.redirect(
-        new URL(`/auth?message=${encodeURIComponent(error.message)}`, request.url)
-      );
-    }
+  if (!next.startsWith("/")) {
+    next = "/dashboard";
   }
 
-  return response;
+  if (code) {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error) {
+      const forwardedHost = request.headers.get("x-forwarded-host");
+      const isLocalEnv = process.env.NODE_ENV === "development";
+
+      if (isLocalEnv) {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+
+      if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      }
+
+      return NextResponse.redirect(`${origin}${next}`);
+    }
+
+    return NextResponse.redirect(`${origin}/auth?message=${encodeURIComponent(error.message)}`);
+  }
+
+  return NextResponse.redirect(`${origin}/auth?message=Missing+authorization+code`);
 }
